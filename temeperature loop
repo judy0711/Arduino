@@ -1,0 +1,77 @@
+#include <LiquidCrystal.h>      
+#include <OneWire.h>      
+#include <DallasTemperature.h>  
+
+//#define ONE_WIRE_BUS 2    
+#define ONE_WIRE_BUS 7
+
+OneWire temp(ONE_WIRE_BUS);  
+DallasTemperature sensors(&temp); 
+//LiquidCrystal lcd(12, 11, 9, 8, 7, 6);  
+LiquidCrystal lcd(12, 11,10, 5, 4, 3, 2);
+
+float temperature = 0;      
+float setTmp = 23.0;
+void setup()
+{
+  Serial.begin(9600);       
+  sensors.begin();       
+  lcd.begin(16, 2);       
+  pinMode(14,INPUT_PULLUP);
+  pinMode(15,INPUT_PULLUP);
+}
+ 
+void loop ()                     
+{ 
+  int val = digitalRead(14);
+  if(val == LOW){
+    while(digitalRead(14)==LOW){
+      setTmp = setTmp+0.5;
+      }
+  }
+  int value = digitalRead(15);
+  if(value == LOW){
+    while(digitalRead(15)==LOW){
+      setTmp = setTmp-0.5;
+      }
+  }
+  sensors.requestTemperatures();  
+  temperature=sensors.getTempCByIndex(0);  
+  delay(100);
+  
+  if(temperature>setTmp+1){
+    analogWrite(8,255);
+  }
+  else{
+    analogWrite(8,0);
+  }
+  if(temperature<setTmp){
+    analogWrite(9,255);
+  }
+  else{
+    analogWrite(9,0);
+  }
+  
+  if(temperature=setTmp+1){
+    analogWrite(6,255);
+  }
+  else{
+    analogWrite(6,0);
+  }
+
+  lcd.clear();          
+  lcd.print("SetTmp=");   
+  lcd.print(setTmp,2);
+  lcd.print((char)223);      
+  lcd.print("C");          
+  delay(1000);
+  
+  lcd.setCursor(0, 1) ;     
+  lcd.print("CurTmp=");
+  lcd.print(temperature,2);
+  lcd.print((char)223);      
+  lcd.print("C");        
+  delay(1000);
+
+ 
+}

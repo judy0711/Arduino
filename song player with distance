@@ -1,0 +1,91 @@
+const int TRIGPIN=2;
+const int ECHOPIN=3;
+const int LED1=12;
+const int LED2=13;
+const int speaker=4;
+
+unsigned int frequency[8]={523, 587, 659, 694, 784, 880, 988,1046 };
+char toneName[]="CDEFGABH";
+char beeTone[]="GEEFDDCDEFGGGGEEFDDCEGGEDDDDDEFEEEEEFGGEEFDDCEGGC";
+char starTone[]="CCGGAAGFFEEDDCGGFFEEDGGFFEEDCCGGAAGFFEEDDC";
+char birthdayTone[]="CCDCFECCDCGFCCHAFEDFFECDC";
+byte beeBeat[]={1,1,2,1,1,2,1,1,1,1,1,1,2,
+1,1,2,1,1,2,1,1,1,1,4,
+ 1,1,1,1,1,1,2,1,1,1,1,1,1,2,
+1,1,2,1,1,2,1,1,1,1,4};
+byte starBeat[]={1,1,1,1,1,1,2,1,1,1,1,1,1,2, 
+ 1,1,1,1,1,1,2,1,1,1,1,1,1,2,
+ 1,1,1,1,1,1,2,1,1,1,1,1,1,2};
+byte birthdayBeat[]={
+  1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,2,2};
+  
+
+//play different song according to different distance
+
+const int beeLen=sizeof(beeTone); 
+const int starLen=sizeof(starTone);
+const int birthLen = sizeof(birthdayTone);
+unsigned long tempo=180; 
+int i,j;
+  
+ long ping() { 
+   digitalWrite(TRIGPIN, LOW); 
+   delayMicroseconds(2); 
+   digitalWrite(TRIGPIN, HIGH); 
+   delayMicroseconds(10); 
+   digitalWrite(TRIGPIN, LOW); 
+   return pulseIn(ECHOPIN, HIGH)/58; 
+ } 
+  
+ void setup() {
+   Serial.begin(9600);
+   pinMode(TRIGPIN, OUTPUT); 
+   pinMode(ECHOPIN, INPUT); 
+   pinMode(LED1, OUTPUT); 
+   pinMode(LED2, OUTPUT); 
+ } 
+  
+ void loop() { 
+   long cm = ping(); 
+   Serial.println(cm);
+    
+   if (cm < 15) { 
+     for(i=0; i<beeLen; i++)
+      playTone(beeTone[i], beeBeat[i]);
+     delay(3000); 
+   } 
+
+   if(cm >= 15 && cm <= 30)
+   {
+    for(i=0; i<starLen; i++)
+      playTone(starTone[i], starBeat[i]);
+     delay(3000);
+     }
+
+
+   if(cm>=30)
+   {
+    for(i=0; i<birthLen; i++){
+      playTone(birthdayTone[i], birthdayBeat[i]);
+      delay(3000);
+     }
+    }
+   delay(100); 
+   
+ } 
+
+ void playTone(char toneNo,byte beatNo) 
+{
+  unsigned long duration=beatNo*60000/tempo; 
+  int i;
+  for(i=0;i<8;i++)
+  {
+    if(toneNo==toneName[i]) 
+    {
+      tone(speaker,frequency[i]);
+      delay(duration); 
+      noTone(speaker); 
+    }
+ }
+}
+
